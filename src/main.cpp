@@ -99,7 +99,7 @@ int main() {
     OCL_CHECK_NO_ERROR(errorCode);
     std::cout << "Created command queue\n";
 
-    unsigned int n = 100 * 1000 * 1000;
+    unsigned int n = (1 << 26);
     // Создаем два массива псевдослучайных данных для сложения и массив для будущего хранения результата
     std::vector<float> as(n, 0);
     std::vector<float> bs(n, 0);
@@ -249,7 +249,7 @@ int main() {
             // wait for the event
             OCL_SAFE_CALL(clWaitForEvents(1, &executionEvent));
 
-//            // release event
+            // release event
             OCL_SAFE_CALL(clReleaseEvent(executionEvent));
 
             t.nextLap();// При вызове nextLap секундомер запоминает текущий замер (текущий круг) и начинает замерять время следующего круга
