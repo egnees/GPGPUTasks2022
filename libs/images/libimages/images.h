@@ -57,7 +57,7 @@ namespace images {
         size_t height();
 
     protected:
-        CImgDisplayWrapper* cimg_display;
+        CImgDisplayWrapper* cimgDisplay;
         std::string title;
     };
 

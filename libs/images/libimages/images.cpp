@@ -276,63 +276,62 @@ public:
 };
 
 ImageWindow::ImageWindow(std::string title) : title(title) {
-    cimg_display = new CImgDisplayWrapper();
+  cimgDisplay = new CImgDisplayWrapper();
     setTitle(title);
 }
 
 ImageWindow::~ImageWindow() {
-    delete cimg_display;
+    delete cimgDisplay;
 }
 
 template<typename T>
 void ImageWindow::display(Image<T> image) {
     CImgWrapper<T> wrapper = image.toCImg();
-    cimg_display->display.display(*wrapper.img);
+    cimgDisplay->display.display(*wrapper.img);
     setTitle(title);
 }
 
 void ImageWindow::resize(size_t width, size_t height) {
-    cimg_display->display.resize(width, height);
+  cimgDisplay->display.resize(width, height);
 }
 
-void ImageWindow::resize() {
-    cimg_display->display.resize();
+void ImageWindow::resize() { cimgDisplay->display.resize();
 }
 
 void ImageWindow::wait(unsigned int milliseconds) {
-    cimg_display->display.wait(milliseconds);
+  cimgDisplay->display.wait(milliseconds);
 }
 
 void ImageWindow::setTitle(std::string title) {
-    cimg_display->display.set_title(title.data());
+  cimgDisplay->display.set_title(title.data());
 }
 
 bool ImageWindow::isClosed() {
-    return cimg_display->display.is_closed();
+    return cimgDisplay->display.is_closed();
 }
 
 bool ImageWindow::isResized() {
-    return cimg_display->display.is_resized();
+    return cimgDisplay->display.is_resized();
 }
 
 mouse_click_t ImageWindow::getMouseClick() {
-    return cimg_display->display.button();
+    return cimgDisplay->display.button();
 }
 
 int ImageWindow::getMouseX() {
-    return cimg_display->display.mouse_x();
+    return cimgDisplay->display.mouse_x();
 }
 
 int ImageWindow::getMouseY() {
-    return cimg_display->display.mouse_y();
+    return cimgDisplay->display.mouse_y();
 }
 
 size_t ImageWindow::width() {
-    return cimg_display->display.window_width();
+    return cimgDisplay->display.window_width();
 }
 
 size_t ImageWindow::height() {
-    return cimg_display->display.window_height();
+    return cimgDisplay->display.window_height();
 }
 
 

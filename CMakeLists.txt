@@ -12,8 +12,9 @@ find_package(OpenMP)
 if (OpenMP_CXX_FOUND)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
+    message(message "OpenMP found!")
 else()
-    message(WARNING "OpenMP not found!")
+    error(ERROR "OpenMP not found!")
 endif()
 
 # convertIntoHeader CMake-функция объявлена в libs/gpu/CMakeLists.txt:71
