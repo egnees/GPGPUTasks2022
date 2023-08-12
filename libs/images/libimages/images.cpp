@@ -9,7 +9,7 @@
 #elif defined _WIN32
     #define cimg_display 2
 #else
-    #define cimg_display 0
+    #define cimg_display 1
 #endif
 // CImg header-only library available at https://github.com/dtschump/CImg (v.2.3.4 0f0d65d984b08ad8178969f4fa4d1641d721354b)
 #include "CImg.h"

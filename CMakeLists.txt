@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.1)
 
+set(X11_INCLUDE_PATH "/opt/X11/include/")
+include_directories(${X11_INCLUDE_PATH})
+
 add_subdirectory(libs)
 
 project(task3)
@@ -28,6 +31,7 @@ target_link_libraries(aplusb libclew libgpu libutils)
 convertIntoHeader(src/cl/mandelbrot.cl src/cl/mandelbrot_cl.h mandelbrot_kernel)
 add_executable(mandelbrot src/main_mandelbrot.cpp src/cl/mandelbrot_cl.h)
 target_link_libraries(mandelbrot libclew libgpu libimages libutils)
+#target_include_directories(mandelbrot PUBLIC "/opt/X11/include/")
 
 # Для вычисления суммы
 convertIntoHeader(src/cl/sum.cl src/cl/sum_cl.h sum_kernel)
