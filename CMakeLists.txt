@@ -1,7 +1,9 @@
 cmake_minimum_required(VERSION 3.1)
 
-set(X11_INCLUDE_PATH "/opt/X11/include/")
-include_directories(${X11_INCLUDE_PATH})
+if (APPLE)
+    set(X11_INCLUDE_PATH "/opt/X11/include/")
+    include_directories(${X11_INCLUDE_PATH})
+endif()
 
 add_subdirectory(libs)
 
@@ -15,9 +17,9 @@ find_package(OpenMP)
 if (OpenMP_CXX_FOUND)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
-    message(message "OpenMP found!")
+    message("OpenMP found!")
 else()
-    error(ERROR "OpenMP not found!")
+    message("OpenMP not found!")
 endif()
 
 # convertIntoHeader CMake-функция объявлена в libs/gpu/CMakeLists.txt:71
@@ -31,7 +33,6 @@ target_link_libraries(aplusb libclew libgpu libutils)
 convertIntoHeader(src/cl/mandelbrot.cl src/cl/mandelbrot_cl.h mandelbrot_kernel)
 add_executable(mandelbrot src/main_mandelbrot.cpp src/cl/mandelbrot_cl.h)
 target_link_libraries(mandelbrot libclew libgpu libimages libutils)
-#target_include_directories(mandelbrot PUBLIC "/opt/X11/include/")
 
 # Для вычисления суммы
 convertIntoHeader(src/cl/sum.cl src/cl/sum_cl.h sum_kernel)

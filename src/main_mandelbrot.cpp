@@ -98,14 +98,6 @@ int main(int argc, char **argv)
         std::cout << "CPU: " << t.lapAvg() << "+-" << t.lapStd() << " s" << std::endl;
         std::cout << "CPU: " << static_cast<double>(maxApproximateFlops) / gflops / t.lapAvg() << " GFlops" << std::endl;
 
-//        double realIterationsFraction = 0.0;
-//        for (int j = 0; j < height; ++j) {
-//            for (int i = 0; i < width; ++i) {
-//                realIterationsFraction += cpu_results.ptr()[j * width + i];
-//            }
-//        }
-//        std::cout << "    Real iterations fraction: " << 100.0 * realIterationsFraction / (width * height) << "%" << std::endl;
-
         renderToColor(cpu_results.ptr(), image.ptr(), width, height);
         image.savePNG("mandelbrot_cpu.png");
 
@@ -138,7 +130,7 @@ int main(int argc, char **argv)
         const size_t maxApproximateFlops = width * height * iterationsLimit * flopsInLoop;
         const size_t gflops = 1000*1000*1000;
         for (unsigned int i = 0; i < benchmarkingIters; ++i) {
-          kernel.exec(gpu::WorkSize(16, 16, width, height), vram, width, height,
+          kernel.exec(gpu::WorkSize(8, 32, width, height), vram, width, height,
                       centralX - sizeX / 2.0f, centralY - sizeY / 2.0f,
                       sizeX, sizeY,
                       iterationsLimit, 0);
@@ -149,14 +141,6 @@ int main(int argc, char **argv)
         std::cout << "GPU: " << static_cast<double>(maxApproximateFlops) / gflops / t.lapAvg() << " GLops\n";
 
         vram.readN(gpu_results.ptr(), width * height);
-
-//        double realIterationsFraction = 0.0;
-//        for (int i = 0; i < height; ++i) {
-//          for (int j = 0; j < width; ++j) {
-//            realIterationsFraction += gpu_results.ptr()[i * width + j];
-//          }
-//        }
-//        std::cout << "    Real iterations fraction: " << 100.0 * realIterationsFraction / (width * height) << "%" << std::endl;
 
         renderToColor(gpu_results.ptr(), image.ptr(), width, height);
         image.savePNG("mandelbrot_gpu.png");
@@ -183,7 +167,7 @@ int main(int argc, char **argv)
     // Кликами мышки можно смещать ракурс
     // Но в Pull-request эти две строки должны быть закомментированы, т.к. на автоматическом тестировании нет оконной подсистемы 
     bool useGPU = true;
-    renderInWindow(centralX, centralY, iterationsLimit, useGPU);
+    renderInWindow(centralX, centralY, 768, useGPU);
 
     return 0;
 }
@@ -195,7 +179,7 @@ void renderInWindow(float centralX, float centralY, unsigned int iterationsLimit
     unsigned int width = 1024;
     unsigned int height = 1024;
 
-    float sizeX = 2.0f;
+    float sizeX = 3.0f;
     float sizeY = sizeX * height / width;
 
     float zoomingSpeed = 1.025f;
@@ -217,7 +201,7 @@ void renderInWindow(float centralX, float centralY, unsigned int iterationsLimit
                           sizeX, sizeY,
                           iterationsLimit, true);
         } else {
-            kernel.exec(gpu::WorkSize(16, 16, width, height),
+            kernel.exec(gpu::WorkSize(8, 32, width, height),
                         results_vram, width, height,
                         centralX - sizeX / 2.0f, centralY - sizeY / 2.0f,
                         sizeX, sizeY,
