@@ -165,7 +165,7 @@ void renderInWindow(float centralX, float centralY, unsigned int iterationsLimit
     float sizeX = 4.0f;
     float sizeY = sizeX * height / width;
 
-    float zoomingSpeed = 1.06f;
+    float zoomingSpeed = 1.01f;
 
     images::Image<float> results(width, height, 1);
     images::Image<unsigned char> image(width, height, 3);
@@ -187,7 +187,7 @@ void renderInWindow(float centralX, float centralY, unsigned int iterationsLimit
 
     do {
         if (fabs(sizeX - targetSizeX) < 1e-3) {
-          zoomingSpeed = 1.025f;
+          zoomingSpeed = 1.01f;
         }
         if (!useGPU) {
             mandelbrotCPU(results.ptr(), width, height,
