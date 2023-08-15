@@ -49,7 +49,7 @@ void mandelbrotCPU(float* results,
 
 void renderToColor(const float* results, unsigned char* img_rgb, unsigned int width, unsigned int height);
 
-void renderInWindow(float centralX, float centralY, unsigned int iterationsLimit, bool useGPU);
+void renderInWindow(float centralX, float centralY, unsigned int iterationsLimit, float targetSizeX, bool useGPU);
 
 
 int main(int argc, char **argv)
@@ -150,12 +150,12 @@ int main(int argc, char **argv)
     // Это бонус в виде интерактивной отрисовки, не забудьте запустить на ГПУ, чтобы посмотреть, в какой момент числа итераций/точности single float перестанет хватать
     // Кликами мышки можно смещать ракурс
     bool useGPU = true;
-    renderInWindow(centralX, centralY, 768, useGPU);
+    renderInWindow(centralX, centralY, iterationsLimit, sizeX, useGPU);
 
     return 0;
 }
 
-void renderInWindow(float centralX, float centralY, unsigned int iterationsLimit, bool useGPU)
+void renderInWindow(float centralX, float centralY, unsigned int iterationsLimit, float targetSizeX, bool useGPU)
 {
     images::ImageWindow window("Mandelbrot");
 
@@ -165,7 +165,7 @@ void renderInWindow(float centralX, float centralY, unsigned int iterationsLimit
     float sizeX = 4.0f;
     float sizeY = sizeX * height / width;
 
-    float zoomingSpeed = 1.025f;
+    float zoomingSpeed = 1.06f;
 
     images::Image<float> results(width, height, 1);
     images::Image<unsigned char> image(width, height, 3);
@@ -186,6 +186,9 @@ void renderInWindow(float centralX, float centralY, unsigned int iterationsLimit
     const float changeFocusSpeed = 0.2f;
 
     do {
+        if (fabs(sizeX - targetSizeX) < 1e-3) {
+          zoomingSpeed = 1.025f;
+        }
         if (!useGPU) {
             mandelbrotCPU(results.ptr(), width, height,
                           centralX - sizeX / 2.0f, centralY - sizeY / 2.0f,
@@ -202,15 +205,19 @@ void renderInWindow(float centralX, float centralY, unsigned int iterationsLimit
         renderToColor(results.ptr(), image.ptr(), width, height);
 
         window.display(image);
-        window.wait(5);
+        window.wait(30);
 
         if (window.getMouseClick() == MOUSE_LEFT) {
             if (!started) {
               started = true;
+            } else {
+              newCentralX =
+                  centralX - sizeX * 0.5f + sizeX * window.getMouseX() / width;
+              newCentralY =
+                  centralY - sizeY * 0.5f + sizeY * window.getMouseY() / height;
+              std::cout << "Focus: " << newCentralX << " " << newCentralY << " "
+                        << sizeX << std::endl;
             }
-            newCentralX = centralX - sizeX * 0.5f + sizeX * window.getMouseX() / width;
-            newCentralY = centralY - sizeY * 0.5f + sizeY * window.getMouseY() / height;
-            std::cout << "Focus: " << newCentralX << " " << newCentralY  << " " << sizeX << std::endl;
         }
         if (window.isResized()) {
             window.resize();
