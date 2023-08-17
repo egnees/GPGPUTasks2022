@@ -45,15 +45,11 @@ __kernel void complex_function_kernel_smart(__global unsigned int* vram, unsigne
 
     for (int size = GROUP_SIZE; size > 1; size /= 2) {
         if (2 * local_id < size) {
-            barrier(CLK_LOCAL_MEM_FENCE);
             unsigned int x1 = local_mem[local_id];
             unsigned int x2 = local_mem[local_id + size / 2];
-            unsigned int result = x1 + x2;
-            barrier(CLK_LOCAL_MEM_FENCE);
-            local_mem[local_id] = result;
-        } else {
-            break;
+            local_mem[local_id] = x1 + x2;
         }
+        barrier(CLK_LOCAL_MEM_FENCE);
     }
 
     if (local_id == 0) {
