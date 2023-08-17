@@ -18,7 +18,7 @@ void mandelbrotCPU(float* results,
     const float threshold = 2.0f;
     const float threshold2 = threshold * threshold;
 
-//    #pragma omp parallel for
+//    #pragma omp parallel for default(none) shared(height, width, fromX, fromY, sizeX, sizeY, iters, threshold2, smoothing, threshold, results)
     for (int j = 0; j < height; ++j) {
         for (int i = 0; i < width; ++i) {
             float x0 = fromX + (i + 0.5f) * sizeX / width;
@@ -277,7 +277,7 @@ vec3f cos(const vec3f &a) {
 void renderToColor(const float* results, unsigned char* img_rgb,
              unsigned int width, unsigned int height)
 {
-//    #pragma omp parallel for
+//    #pragma omp parallel for default(none) shared(height, width, results, img_rgb)
     for (int j = 0; j < height; ++j) {
         for (int i = 0; i < width; ++i) {
             // Палитра взята отсюда: http://iquilezles.org/www/articles/palettes/palettes.html

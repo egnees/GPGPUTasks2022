@@ -2,6 +2,10 @@
 #include <libutils/timer.h>
 #include <libutils/fast_random.h>
 
+#include <libgpu/context.h>
+#include <libgpu/shared_device_buffer.h>
+
+#include "cl/sum_cl.h"
 
 template<typename T>
 void raiseFail(const T &a, const T &b, std::string message, std::string filename, int line)
@@ -40,13 +44,14 @@ int main(int argc, char **argv)
         }
         std::cout << "CPU:     " << t.lapAvg() << "+-" << t.lapStd() << " s" << std::endl;
         std::cout << "CPU:     " << (n/1000.0/1000.0) / t.lapAvg() << " millions/s" << std::endl;
+        std::cout << "CPU:     " << (n/1000.0/1000.0/1000.0) / t.lapAvg() << " GFlops" << std::endl;
     }
 
     {
         timer t;
         for (int iter = 0; iter < benchmarkingIters; ++iter) {
             unsigned int sum = 0;
-            #pragma omp parallel for reduction(+:sum)
+//            #pragma omp parallel for reduction(+:sum) default(none) shared(as, n)
             for (int i = 0; i < n; ++i) {
                 sum += as[i];
             }
@@ -55,10 +60,39 @@ int main(int argc, char **argv)
         }
         std::cout << "CPU OMP: " << t.lapAvg() << "+-" << t.lapStd() << " s" << std::endl;
         std::cout << "CPU OMP: " << (n/1000.0/1000.0) / t.lapAvg() << " millions/s" << std::endl;
+        std::cout << "CPU OMP: " << (n/1000.0/1000.0/1000.0) / t.lapAvg() << " GFlops" << std::endl;
     }
 
     {
         // TODO: implement on OpenCL
-        // gpu::Device device = gpu::chooseGPUDevice(argc, argv);
+         gpu::Device device = gpu::chooseGPUDevice(argc, argv);
+         gpu::Context context;
+         context.init(device.device_id_opencl);
+         context.activate();
+
+         ocl::Kernel kernel(sum_kernel, sum_kernel_length, "sum");
+         kernel.compile(true);
+
+         unsigned int size = gpu::divup(n, 128) * 128;
+         gpu::gpu_mem_32u vram;
+         vram.resizeN(n + 1);
+         vram.writeN(as.data(), n);
+
+         const unsigned int GROUP_SIZE = 128;
+         timer t;
+         for (int iter = 0; iter < benchmarkingIters; ++iter) {
+             kernel.exec(gpu::WorkSize(GROUP_SIZE, size), vram, n);
+             if (iter == 0) {
+                 unsigned int sum;
+                 vram.readN(&sum, 1, n);
+
+                 EXPECT_THE_SAME(sum, reference_sum, "GPU result should be consistent!");
+             }
+             t.nextLap();
+         }
+
+         std::cout << "GPU: " << t.lapAvg() << "+-" << t.lapStd() << " s" << std::endl;
+         std::cout << "GPU: " << (n/1000.0/1000.0) / t.lapAvg() << " millions/s" << std::endl;
+         std::cout << "GPU: " << (n/1000.0/1000.0/1000.0) / t.lapAvg() << " GFlops" << std::endl;
     }
 }

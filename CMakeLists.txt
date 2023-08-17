@@ -38,3 +38,8 @@ target_link_libraries(mandelbrot libclew libgpu libimages libutils)
 convertIntoHeader(src/cl/sum.cl src/cl/sum_cl.h sum_kernel)
 add_executable(sum src/main_sum.cpp src/cl/sum_cl.h)
 target_link_libraries(sum libclew libgpu libutils)
+
+# Для вычисления сложной функции, когда упираемся в GFlops
+convertIntoHeader(src/cl/complex_function.cl src/cl/complex_function_cl.h complex_function_kernel)
+add_executable(complex_function src/main_complex_function.cpp src/cl/complex_function_cl.h)
+target_link_libraries(complex_function libclew libgpu libutils)
