@@ -52,13 +52,12 @@ int main(int argc, char **argv)
             }
             t.nextLap();
         }
-        std::cout << "CPU: " << t.lapAvg() << "+-" << t.lapStd() << " s" << std::endl;
+        std::cout << "CPU: " << t.lapAvg()*1000.0 << "+-" << t.lapStd()*1000.0 << " milliseconds" << std::endl;
         std::cout << "CPU: " << gflops / t.lapAvg() << " GFlops" << std::endl;
     }
 
     const std::vector<float> cs_cpu_reference = cs;
 
-    /*
     gpu::gpu_mem_32f as_gpu, bs_gpu, cs_gpu;
     as_gpu.resizeN(M*K);
     bs_gpu.resizeN(K*N);
@@ -71,21 +70,19 @@ int main(int argc, char **argv)
     matrix_multiplication_kernel.compile();
 
     {
+#define TILE 32
+#define WPT 8
         timer t;
         for (int iter = 0; iter < benchmarkingIters; ++iter) {
-            // TODO
-            unsigned int work_group_size = 128;
-            unsigned int global_work_size = ...;
-            matrix_multiplication_kernel.exec(gpu::WorkSize(work_group_size, global_work_size), as_gpu, bs_gpu, cs_gpu, M, K, N);
+            matrix_multiplication_kernel.exec(gpu::WorkSize(TILE / WPT, TILE, N / WPT, M), as_gpu, bs_gpu, cs_gpu, M, K, N);
 
             t.nextLap();
         }
-        std::cout << "GPU: " << t.lapAvg() << "+-" << t.lapStd() << " s" << std::endl;
+        std::cout << "GPU: " << t.lapAvg()*1000.0 << "+-" << t.lapStd()*1000.0 << " milliseconds" << std::endl;
         std::cout << "GPU: " << gflops / t.lapAvg() << " GFlops" << std::endl;
     }
 
     cs_gpu.readN(cs.data(), M*N);
-    */
 
     // Проверяем корректность результатов
     double diff_sum = 0;
